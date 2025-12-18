@@ -1,0 +1,24 @@
+{
+  "name": "diamond-headquarters-ts",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "cucumber-js --require-module ts-node/register --require src/**/*.ts --publish --fail-fast",
+    "test:smoke": "node ./scripts/generate-cucumber-html.js --tags @smoke",
+    "playwright:install": "npx playwright install"
+  },
+  "dependencies": {
+    "@cucumber/cucumber": "^8.11.0",
+    "chai": "^4.3.7",
+    "playwright": "^1.35.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.4",
+    "@types/node": "^18.16.3",
+    "cucumber-html-reporter": "^5.5.1",
+    "minimist": "^1.2.8",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}

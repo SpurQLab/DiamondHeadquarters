@@ -1,0 +1,38 @@
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+*.swp
+*.bak
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Test outputs
+test-output/
+screenshots/
+*.png
+*.jpg
+*.mp4
+
+# Node modules (for MCP scripts)
+node_modules/
+
+
+# Playwright
+playwright-report/
+test-results/
+.playwright/
+
+# Credentials (if any)
+*.env
+credentials.json
+
+# Temporary files
+*.tmp
+*.temp
