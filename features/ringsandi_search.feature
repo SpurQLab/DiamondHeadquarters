@@ -13,8 +13,8 @@ Feature: Ringsandi Search and Size Selection
       And I click on variant option "<Variant>" in "<Category>"
       And I click on the Break-up text on the "<Variant>" variant in "<Category>"
       Then the price breakdown for "Divine Essence Women Ring" is displayed with size "18"
-      And I verify Metal weight for "<MetalKT>" is displayed
-      And I verify Natural stone weight is displayed
+      And I verify Metal weight for "<MetalKT>" is displayed correctly
+      And I verify Solitaire stone weight is displayed correctly
 
       Examples:
         | Variant       | MetalKT        | Category                          |

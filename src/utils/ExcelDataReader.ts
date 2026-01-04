@@ -174,34 +174,58 @@ export class ExcelDataReader {
       const wb = this.getWorkbook(productCode, ringSize);
       const sheetName = wb.SheetNames[0];
       const sheet = wb.Sheets[sheetName];
-      // attempt to find header WEIGHT then read next rows
       const range = XLSX.utils.decode_range(sheet['!ref'] || 'A1:A1');
-      let weightCol: number | null = null;
+      
+      // Find the header row with SHAPE, SIEVE SIZE, MM SIZE, PTS, QTY., WEIGHT
       let headerRow: number | null = null;
-      for (let R = 0; R <= 12; ++R) {
-        for (let C = 0; C <= 12; ++C) {
+      let qtyCol: number | null = null;
+      let weightCol: number | null = null;
+      
+      for (let R = 0; R <= 15; ++R) {
+        for (let C = 0; C <= 10; ++C) {
           const addr = XLSX.utils.encode_cell({ r: R, c: C });
           const cell = sheet[addr];
           if (!cell || !cell.v) continue;
-          const val = String(cell.v).trim().toLowerCase();
-          if (val === 'weight') {
-            weightCol = C;
+          const val = String(cell.v).trim().toUpperCase();
+          if (val === 'SHAPE') {
+            // Found shape column, look for QTY and WEIGHT in same row
             headerRow = R;
+            for (let c2 = C; c2 <= C + 6; ++c2) {
+              const h = XLSX.utils.encode_cell({ r: R, c: c2 });
+              const hCell = sheet[h];
+              if (hCell && hCell.v) {
+                const hVal = String(hCell.v).trim().toUpperCase().replace(/\./g, '');
+                if (hVal === 'QTY' || hVal === 'QTY') qtyCol = c2;
+                if (hVal === 'WEIGHT') weightCol = c2;
+              }
+            }
             break;
           }
         }
-        if (weightCol !== null) break;
+        if (headerRow !== null) break;
       }
-      if (weightCol !== null && headerRow !== null) {
-        for (let r = headerRow + 1; r <= headerRow + 6; ++r) {
-          const addr = XLSX.utils.encode_cell({ r, c: weightCol });
-          const cell = sheet[addr];
-          if (!cell || !cell.v) continue;
-          const v = String(cell.v).trim();
-          if (v && v !== '0' && !v.toLowerCase().includes('#n/a')) return v;
+      
+      if (headerRow !== null && qtyCol !== null && weightCol !== null) {
+        // Read rows after header and find weight where QTY <= 5 (natural stone/solitaire)
+        for (let r = headerRow + 1; r <= Math.min(headerRow + 30, range.e.r); ++r) {
+          const qtyAddr = XLSX.utils.encode_cell({ r, c: qtyCol });
+          const weightAddr = XLSX.utils.encode_cell({ r, c: weightCol });
+          const qtyCell = sheet[qtyAddr];
+          const weightCell = sheet[weightAddr];
+          
+          if (qtyCell && qtyCell.v && weightCell && weightCell.v) {
+            const qty = parseFloat(String(qtyCell.v));
+            const weight = parseFloat(String(weightCell.v));
+            
+            // Natural stone typically has QTY = 1 or small quantity (<=5)
+            if (!isNaN(qty) && !isNaN(weight) && qty <= 5 && weight > 0) {
+              return weight.toFixed(2);
+            }
+          }
         }
       }
-      // fallback: find cell "Dia Wt" then nearby
+      
+      // Fallback: find cell "Dia Wt" then nearby (for older format)
       for (let R = 0; R <= 12; ++R) {
         for (let C = 0; C <= 12; ++C) {
           const addr = XLSX.utils.encode_cell({ r: R, c: C });
@@ -217,6 +241,133 @@ export class ExcelDataReader {
       }
     } catch (e) {
       console.error('Error reading Excel file:', e.message || e);
+    }
+    return null;
+  }
+
+  static getNaturalStoneShape(productCode: string, ringSize: string): string | null {
+    try {
+      const wb = this.getWorkbook(productCode, ringSize);
+      const sheetName = wb.SheetNames[0];
+      const sheet = wb.Sheets[sheetName];
+      const range = XLSX.utils.decode_range(sheet['!ref'] || 'A1:A1');
+      
+      // Find the header row with SHAPE, SIEVE SIZE, MM SIZE, PTS, QTY., WEIGHT
+      let headerRow: number | null = null;
+      let shapeCol: number | null = null;
+      let qtyCol: number | null = null;
+      
+      for (let R = 0; R <= 15; ++R) {
+        for (let C = 0; C <= 10; ++C) {
+          const addr = XLSX.utils.encode_cell({ r: R, c: C });
+          const cell = sheet[addr];
+          if (!cell || !cell.v) continue;
+          const val = String(cell.v).trim().toUpperCase();
+          if (val === 'SHAPE' || val === 'SHAPE') {
+            // Found shape column
+            shapeCol = C;
+            headerRow = R;
+            // Look for QTY in same row
+            for (let c2 = C; c2 <= C + 6; ++c2) {
+              const h = XLSX.utils.encode_cell({ r: R, c: c2 });
+              const hCell = sheet[h];
+              if (hCell && hCell.v) {
+                const hVal = String(hCell.v).trim().toUpperCase().replace(/\./g, '');
+                if (hVal === 'QTY' || hVal === 'QTY') qtyCol = c2;
+              }
+            }
+            break;
+          }
+        }
+        if (headerRow !== null) break;
+      }
+      
+      if (headerRow !== null && shapeCol !== null && qtyCol !== null) {
+        // Read rows after header and find shape where QTY <= 5 (natural stone/solitaire)
+        for (let r = headerRow + 1; r <= Math.min(headerRow + 30, range.e.r); ++r) {
+          const qtyAddr = XLSX.utils.encode_cell({ r, c: qtyCol });
+          const shapeAddr = XLSX.utils.encode_cell({ r, c: shapeCol });
+          const qtyCell = sheet[qtyAddr];
+          const shapeCell = sheet[shapeAddr];
+          
+          if (qtyCell && qtyCell.v && shapeCell && shapeCell.v) {
+            const qty = parseFloat(String(qtyCell.v));
+            const shape = String(shapeCell.v).trim().toUpperCase();
+            
+            // Natural stone typically has QTY = 1 or small quantity (<=5)
+            if (!isNaN(qty) && qty <= 5 && shape.length > 0) {
+              return shape;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error reading Excel file for natural stone shape:', e.message || e);
+    }
+    return null;
+  }
+
+  static getSmallDiamondWeight(productCode: string, ringSize: string): string | null {
+    try {
+      const wb = this.getWorkbook(productCode, ringSize);
+      const sheetName = wb.SheetNames[0];
+      const sheet = wb.Sheets[sheetName];
+      const range = XLSX.utils.decode_range(sheet['!ref'] || 'A1:A1');
+      
+      // Find the header row with SHAPE, SIEVE SIZE, MM SIZE, PTS, QTY., WEIGHT
+      let headerRow: number | null = null;
+      let qtyCol: number | null = null;
+      let weightCol: number | null = null;
+      
+      for (let R = 0; R <= 15; ++R) {
+        for (let C = 0; C <= 10; ++C) {
+          const addr = XLSX.utils.encode_cell({ r: R, c: C });
+          const cell = sheet[addr];
+          if (!cell || !cell.v) continue;
+          const val = String(cell.v).trim().toUpperCase();
+          if (val === 'SHAPE' || val === 'SHAPE') {
+            // Found shape column, look for QTY and WEIGHT in same row
+            headerRow = R;
+            for (let c2 = C; c2 <= C + 6; ++c2) {
+              const h = XLSX.utils.encode_cell({ r: R, c: c2 });
+              const hCell = sheet[h];
+              if (hCell && hCell.v) {
+                const hVal = String(hCell.v).trim().toUpperCase().replace(/\./g, '');
+                if (hVal === 'QTY' || hVal === 'QTY') qtyCol = c2;
+                if (hVal === 'WEIGHT') weightCol = c2;
+              }
+            }
+            break;
+          }
+        }
+        if (headerRow !== null) break;
+      }
+      
+      if (headerRow !== null && qtyCol !== null && weightCol !== null) {
+        let totalWeight = 0;
+        // Read rows after header and sum weights where QTY > 5
+        for (let r = headerRow + 1; r <= Math.min(headerRow + 30, range.e.r); ++r) {
+          const qtyAddr = XLSX.utils.encode_cell({ r, c: qtyCol });
+          const weightAddr = XLSX.utils.encode_cell({ r, c: weightCol });
+          const qtyCell = sheet[qtyAddr];
+          const weightCell = sheet[weightAddr];
+          
+          if (qtyCell && qtyCell.v && weightCell && weightCell.v) {
+            const qty = parseFloat(String(qtyCell.v));
+            const weight = parseFloat(String(weightCell.v));
+            
+            if (!isNaN(qty) && !isNaN(weight) && qty > 5) {
+              totalWeight += weight;
+            }
+          }
+        }
+        
+        if (totalWeight > 0) {
+          return totalWeight.toFixed(2);
+        }
+      }
+    } catch (e) {
+      console.error('Error reading Excel file for small diamond weight:', e.message || e);
     }
     return null;
   }

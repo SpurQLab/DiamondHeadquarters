@@ -4,7 +4,7 @@ Feature: Divine Essence Women Ring
   I want to search for a product and choose a size
   So that I can view the product with the selected size
 
-  @smoke
+  @smoke1
   Scenario Outline: Search for Divine Essence Women Ring with size 5 and validate variant weights
     Given I open Ringsandi site "https://ringsandi.com/"
     When I search for "Divine Essence Women Ring"
@@ -13,8 +13,8 @@ Feature: Divine Essence Women Ring
     And I click on variant option "<Variant>" in "<Category>"
     And I click on the Break-up text on the "<Variant>" variant in "<Category>"
     Then the price breakdown for "Divine Essence Women Ring" is displayed with size "5"
-    And I verify Metal weight for "<MetalKT>" is displayed
-    And I verify Natural stone weight is displayed
+    And I verify Metal weight for "<MetalKT>" is displayed correctly
+    And I verify Solitaire stone weight is displayed correctly
 
     Examples:
       | Variant       | MetalKT        | Category                          |
@@ -40,8 +40,8 @@ Feature: Divine Essence Women Ring
     And I click on variant option "<Variant>" in "<Category>"
     And I click on the Break-up text on the "<Variant>" variant in "<Category>"
     Then the price breakdown for "Divine Essence Women Ring" is displayed with size "6"
-    And I verify Metal weight for "<MetalKT>" is displayed
-    And I verify Natural stone weight is displayed
+    And I verify Metal weight for "<MetalKT>" is displayed correctly
+    And I verify Solitaire stone weight is displayed correctly
 
     Examples:
       | Variant       | MetalKT        | Category                          |
@@ -67,8 +67,8 @@ Feature: Divine Essence Women Ring
     And I click on variant option "<Variant>" in "<Category>"
     And I click on the Break-up text on the "<Variant>" variant in "<Category>"
     Then the price breakdown for "Divine Essence Women Ring" is displayed with size "7"
-    And I verify Metal weight for "<MetalKT>" is displayed
-    And I verify Natural stone weight is displayed
+    And I verify Metal weight for "<MetalKT>" is displayed correctly
+    And I verify Solitaire stone weight is displayed correctly
 
     Examples:
       | Variant       | MetalKT        | Category                          |
@@ -94,8 +94,8 @@ Feature: Divine Essence Women Ring
     And I click on variant option "<Variant>" in "<Category>"
     And I click on the Break-up text on the "<Variant>" variant in "<Category>"
     Then the price breakdown for "Divine Essence Women Ring" is displayed with size "8"
-    And I verify Metal weight for "<MetalKT>" is displayed
-    And I verify Natural stone weight is displayed
+    And I verify Metal weight for "<MetalKT>" is displayed correctly
+    And I verify Solitaire stone weight is displayed correctly
 
     Examples:
       | Variant       | MetalKT        | Category                          |
@@ -121,8 +121,8 @@ Feature: Divine Essence Women Ring
     And I click on variant option "<Variant>" in "<Category>"
     And I click on the Break-up text on the "<Variant>" variant in "<Category>"
     Then the price breakdown for "Divine Essence Women Ring" is displayed with size "9"
-    And I verify Metal weight for "<MetalKT>" is displayed
-    And I verify Natural stone weight is displayed
+    And I verify Metal weight for "<MetalKT>" is displayed correctly
+    And I verify Solitaire stone weight is displayed correctly
 
     Examples:
       | Variant       | MetalKT        | Category                          |
@@ -148,8 +148,8 @@ Feature: Divine Essence Women Ring
     And I click on variant option "<Variant>" in "<Category>"
     And I click on the Break-up text on the "<Variant>" variant in "<Category>"
     Then the price breakdown for "Divine Essence Women Ring" is displayed with size "10"
-    And I verify Metal weight for "<MetalKT>" is displayed
-    And I verify Natural stone weight is displayed
+    And I verify Metal weight for "<MetalKT>" is displayed correctly
+    And I verify Solitaire stone weight is displayed correctly
 
     Examples:
       | Variant       | MetalKT        | Category                          |
@@ -175,8 +175,8 @@ Feature: Divine Essence Women Ring
     And I click on variant option "<Variant>" in "<Category>"
     And I click on the Break-up text on the "<Variant>" variant in "<Category>"
     Then the price breakdown for "Divine Essence Women Ring" is displayed with size "11"
-    And I verify Metal weight for "<MetalKT>" is displayed
-    And I verify Natural stone weight is displayed
+    And I verify Metal weight for "<MetalKT>" is displayed correctly
+    And I verify Solitaire stone weight is displayed correctly
 
     Examples:
       | Variant       | MetalKT        | Category                          |
@@ -202,8 +202,8 @@ Feature: Divine Essence Women Ring
     And I click on variant option "<Variant>" in "<Category>"
     And I click on the Break-up text on the "<Variant>" variant in "<Category>"
     Then the price breakdown for "Divine Essence Women Ring" is displayed with size "12"
-    And I verify Metal weight for "<MetalKT>" is displayed
-    And I verify Natural stone weight is displayed
+    And I verify Metal weight for "<MetalKT>" is displayed correctly
+    And I verify Solitaire stone weight is displayed correctly
 
     Examples:
       | Variant       | MetalKT        | Category                          |
@@ -229,8 +229,8 @@ Feature: Divine Essence Women Ring
     And I click on variant option "<Variant>" in "<Category>"
     And I click on the Break-up text on the "<Variant>" variant in "<Category>"
     Then the price breakdown for "Divine Essence Women Ring" is displayed with size "13"
-    And I verify Metal weight for "<MetalKT>" is displayed
-    And I verify Natural stone weight is displayed
+    And I verify Metal weight for "<MetalKT>" is displayed correctly
+    And I verify Solitaire stone weight is displayed correctly
 
     Examples:
       | Variant       | MetalKT        | Category                          |
@@ -256,8 +256,8 @@ Feature: Divine Essence Women Ring
     And I click on variant option "<Variant>" in "<Category>"
     And I click on the Break-up text on the "<Variant>" variant in "<Category>"
     Then the price breakdown for "Divine Essence Women Ring" is displayed with size "14"
-    And I verify Metal weight for "<MetalKT>" is displayed
-    And I verify Natural stone weight is displayed
+    And I verify Metal weight for "<MetalKT>" is displayed correctly
+    And I verify Solitaire stone weight is displayed correctly
 
     Examples:
       | Variant       | MetalKT        | Category                          |
@@ -283,8 +283,8 @@ Feature: Divine Essence Women Ring
     And I click on variant option "<Variant>" in "<Category>"
     And I click on the Break-up text on the "<Variant>" variant in "<Category>"
     Then the price breakdown for "Divine Essence Women Ring" is displayed with size "15"
-    And I verify Metal weight for "<MetalKT>" is displayed
-    And I verify Natural stone weight is displayed
+    And I verify Metal weight for "<MetalKT>" is displayed correctly
+    And I verify Solitaire stone weight is displayed correctly
 
     Examples:
       | Variant       | MetalKT        | Category                          |
@@ -310,8 +310,8 @@ Feature: Divine Essence Women Ring
     And I click on variant option "<Variant>" in "<Category>"
     And I click on the Break-up text on the "<Variant>" variant in "<Category>"
     Then the price breakdown for "Divine Essence Women Ring" is displayed with size "16"
-    And I verify Metal weight for "<MetalKT>" is displayed
-    And I verify Natural stone weight is displayed
+    And I verify Metal weight for "<MetalKT>" is displayed correctly
+    And I verify Solitaire stone weight is displayed correctly
 
     Examples:
       | Variant       | MetalKT        | Category                          |
@@ -337,8 +337,8 @@ Feature: Divine Essence Women Ring
     And I click on variant option "<Variant>" in "<Category>"
     And I click on the Break-up text on the "<Variant>" variant in "<Category>"
     Then the price breakdown for "Divine Essence Women Ring" is displayed with size "17"
-    And I verify Metal weight for "<MetalKT>" is displayed
-    And I verify Natural stone weight is displayed
+    And I verify Metal weight for "<MetalKT>" is displayed correctly
+    And I verify Solitaire stone weight is displayed correctly
 
     Examples:
       | Variant       | MetalKT        | Category                          |
@@ -364,8 +364,8 @@ Feature: Divine Essence Women Ring
     And I click on variant option "<Variant>" in "<Category>"
     And I click on the Break-up text on the "<Variant>" variant in "<Category>"
     Then the price breakdown for "Divine Essence Women Ring" is displayed with size "18"
-    And I verify Metal weight for "<MetalKT>" is displayed
-    And I verify Natural stone weight is displayed
+    And I verify Metal weight for "<MetalKT>" is displayed correctly
+    And I verify Solitaire stone weight is displayed correctly
 
     Examples:
       | Variant       | MetalKT        | Category                          |
@@ -391,8 +391,8 @@ Feature: Divine Essence Women Ring
     And I click on variant option "<Variant>" in "<Category>"
     And I click on the Break-up text on the "<Variant>" variant in "<Category>"
     Then the price breakdown for "Divine Essence Women Ring" is displayed with size "19"
-    And I verify Metal weight for "<MetalKT>" is displayed
-    And I verify Natural stone weight is displayed
+    And I verify Metal weight for "<MetalKT>" is displayed correctly
+    And I verify Solitaire stone weight is displayed correctly
 
     Examples:
       | Variant       | MetalKT        | Category                          |
@@ -418,8 +418,8 @@ Feature: Divine Essence Women Ring
     And I click on variant option "<Variant>" in "<Category>"
     And I click on the Break-up text on the "<Variant>" variant in "<Category>"
     Then the price breakdown for "Divine Essence Women Ring" is displayed with size "20"
-    And I verify Metal weight for "<MetalKT>" is displayed
-    And I verify Natural stone weight is displayed
+    And I verify Metal weight for "<MetalKT>" is displayed correctly
+    And I verify Solitaire stone weight is displayed correctly
 
     Examples:
       | Variant       | MetalKT        | Category                          |

@@ -24,19 +24,20 @@ export class RingsandiPage {
   }
 
   async selectProductByName(productName: string) {
+    // Wait for search results to load
+    await this.page.waitForTimeout(2000);
+    
     const product = this.page.locator(`a[href*='/products/']:has-text("${productName}")`).first();
-    if (await product.count()) {
-      try {
-        const href = await product.getAttribute('href');
-        if (href) {
-          const full = href.startsWith('/') ? `https://ringsandi.com${href}` : href;
-          await this.page.goto(full, { waitUntil: 'load', timeout: 60000 });
-          await this.page.waitForTimeout(500);
-          return;
-        }
-      } catch (e) {}
-      try { await product.scrollIntoViewIfNeeded(); } catch (e) {}
-      try { await product.click({ force: true }); } catch (e) {}
+    
+    // Product links in search results might be hidden, so we directly navigate
+    const href = await product.getAttribute('href');
+    if (href) {
+      const full = href.startsWith('/') ? `https://ringsandi.com${href}` : href;
+      await this.page.goto(full, { waitUntil: 'load', timeout: 60000 });
+      await this.page.waitForTimeout(500);
+    } else {
+      // Fallback: try to force click if href is not available
+      await product.click({ force: true });
     }
   }
 
@@ -148,19 +149,184 @@ export class RingsandiPage {
   }
 
   async getStoneWeight() {
+    // Wait for breakup popup to be loaded (wait for solitaire section)
+    try {
+      await this.page.locator('.pb-box.solitaire-details').first().waitFor({ state: 'visible', timeout: 5000 });
+      await this.page.waitForTimeout(500);
+    } catch (e) {
+      console.log('Warning: Solitaire section not found, trying alternative patterns');
+    }
+    
     const content = await this.page.content();
-    // Try patterns similar to Java version
-    let re = /class=\"pb-box solitaire-details\"[^>]*>(\d+\.\d+)\s*ct/i;
+    
+    // Primary pattern: Match the exact structure shown in HTML
+    // <div class="pb-box solitaire-details">1 ct | I-SI | Emerald</div>
+    let re = /<div\s+class="pb-box solitaire-details">([^<]+)<\/div>/i;
     let m = content.match(re);
+    if (m && m[1]) {
+      // Extract weight from "1 ct | I-SI | Emerald" format
+      const weightMatch = m[1].trim().match(/(\d+(?:\.\d+)?)\s*ct/i);
+      if (weightMatch) {
+        return weightMatch[1];
+      }
+    }
+    
+    // Fallback: Try with relaxed class matching
+    re = /class="pb-box solitaire-details"[^>]*>([^<]+)</i;
+    m = content.match(re);
+    if (m && m[1]) {
+      const weightMatch = m[1].trim().match(/(\d+(?:\.\d+)?)\s*ct/i);
+      if (weightMatch) {
+        return weightMatch[1];
+      }
+    }
+    
+    // Additional fallback for other formats
+    re = /solitaire-details[^>]*>\s*(\d+(?:\.\d+)?)\s*ct/i;
+    m = content.match(re);
     if (m && m[1]) {
       return m[1];
     }
-    re = /Natural[^<>]*?(\d+\.\d+)\s*ct/i;
-    m = content.match(re);
-    if (m && m[1]) return m[1];
-    re = /(?:Solitaire|solitaire-details)[^<>]*?(\d+\.\d+)\s*ct/i;
-    m = content.match(re);
-    if (m && m[1]) return m[1];
+    
     return '';
+  }
+
+  async getStoneWeightWithShape(): Promise<{ weight: string; shape: string }> {
+    // Wait for solitaire stone section to be visible
+    try {
+      await this.page.locator('.pb-box.solitaire-details').first().waitFor({ state: 'visible', timeout: 5000 });
+      await this.page.waitForTimeout(500);
+    } catch (e) {
+      console.log('Warning: Solitaire stone section not found');
+    }
+    
+    const content = await this.page.content();
+    
+    // Primary pattern: Match the exact structure shown in HTML
+    // <div class="pb-box solitaire-details">1 ct | I-SI | Emerald</div>
+    let re = /<div\s+class="pb-box solitaire-details">([^<]+)<\/div>/i;
+    let m = content.match(re);
+    if (m && m[1]) {
+      const text = m[1].trim();
+      // Extract weight and shape from "1 ct | I-SI | Emerald" format
+      const weightMatch = text.match(/(\d+(?:\.\d+)?)\s*ct/i);
+      const shapeMatch = text.match(/\|\s*([^|]+)$/); // Last part after pipe is shape
+      
+      if (weightMatch) {
+        return {
+          weight: weightMatch[1],
+          shape: shapeMatch ? shapeMatch[1].trim() : ''
+        };
+      }
+    }
+    
+    // Fallback: Try with relaxed class matching
+    re = /class="pb-box solitaire-details"[^>]*>([^<]+)</i;
+    m = content.match(re);
+    if (m && m[1]) {
+      const text = m[1].trim();
+      const weightMatch = text.match(/(\d+(?:\.\d+)?)\s*ct/i);
+      const shapeMatch = text.match(/\|\s*([^|]+)$/);
+      
+      if (weightMatch) {
+        return {
+          weight: weightMatch[1],
+          shape: shapeMatch ? shapeMatch[1].trim() : ''
+        };
+      }
+    }
+    
+    return { weight: '', shape: '' };
+  }
+
+  async getSmallDiamondWeight() {
+    // Wait for small diamond section to be visible
+    try {
+      await this.page.locator('.pb-box.diamond-details').first().waitFor({ state: 'visible', timeout: 5000 });
+      await this.page.waitForTimeout(500);
+    } catch (e) {
+      console.log('Warning: Small diamond section not found');
+    }
+    
+    const content = await this.page.content();
+    
+    // Primary pattern: Match the exact structure shown in HTML
+    // <div class="pb-box diamond-details">0.42 ct | IJ-SI | Round</div>
+    let re = /<div\s+class="pb-box diamond-details">([^<]+)<\/div>/i;
+    let m = content.match(re);
+    if (m && m[1]) {
+      // Extract weight from "0.42 ct | IJ-SI | Round" format
+      const weightMatch = m[1].trim().match(/(\d+(?:\.\d+)?)\s*ct/i);
+      if (weightMatch) {
+        return weightMatch[1];
+      }
+    }
+    
+    // Fallback: Try with relaxed class matching
+    re = /class="pb-box diamond-details"[^>]*>([^<]+)</i;
+    m = content.match(re);
+    if (m && m[1]) {
+      const weightMatch = m[1].trim().match(/(\d+(?:\.\d+)?)\s*ct/i);
+      if (weightMatch) {
+        return weightMatch[1];
+      }
+    }
+    
+    // Additional fallback
+    re = /diamond-details[^>]*>\s*(\d+(?:\.\d+)?)\s*ct/i;
+    m = content.match(re);
+    if (m && m[1]) {
+      return m[1];
+    }
+    
+    return '';
+  }
+
+  async getSmallDiamondWeightWithShape(): Promise<{ weight: string; shape: string }> {
+    // Wait for small diamond section to be visible
+    try {
+      await this.page.locator('.pb-box.diamond-details').first().waitFor({ state: 'visible', timeout: 5000 });
+      await this.page.waitForTimeout(500);
+    } catch (e) {
+      console.log('Warning: Small diamond section not found');
+    }
+    
+    const content = await this.page.content();
+    
+    // Primary pattern: Match the exact structure shown in HTML
+    // <div class="pb-box diamond-details">0.42 ct | IJ-SI | Round</div>
+    let re = /<div\s+class="pb-box diamond-details">([^<]+)<\/div>/i;
+    let m = content.match(re);
+    if (m && m[1]) {
+      const text = m[1].trim();
+      // Extract weight and shape from "0.42 ct | IJ-SI | Round" format
+      const weightMatch = text.match(/(\d+(?:\.\d+)?)\s*ct/i);
+      const shapeMatch = text.match(/\|\s*([^|]+)$/); // Last part after pipe is shape
+      
+      if (weightMatch) {
+        return {
+          weight: weightMatch[1],
+          shape: shapeMatch ? shapeMatch[1].trim() : ''
+        };
+      }
+    }
+    
+    // Fallback: Try with relaxed class matching
+    re = /class="pb-box diamond-details"[^>]*>([^<]+)</i;
+    m = content.match(re);
+    if (m && m[1]) {
+      const text = m[1].trim();
+      const weightMatch = text.match(/(\d+(?:\.\d+)?)\s*ct/i);
+      const shapeMatch = text.match(/\|\s*([^|]+)$/);
+      
+      if (weightMatch) {
+        return {
+          weight: weightMatch[1],
+          shape: shapeMatch ? shapeMatch[1].trim() : ''
+        };
+      }
+    }
+    
+    return { weight: '', shape: '' };
   }
 }
